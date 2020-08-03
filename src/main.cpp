@@ -1,35 +1,9 @@
 #include "menu.hpp"
 #include "curses.hpp"
 #include "common.hpp"
-#include "lsmod.hpp"
-
-void callbackLsmod()
-{
-    Lsmod::runFlag = true;
-    while (Lsmod::runFlag)
-    {
-        Timer timer(1000, false, &Lsmod::run);
-    }
-};
 
 int main()
 {
-    // std::thread thLsmod(callbackLsmod);
-
-    // char c;
-    // while (true)
-    // {
-    //     std::cin >> c;
-    //     switch (c)
-    //     {
-    //     case 'a':
-    //         std::cout << "######  exit  ######" << std::endl;
-    //         Lsmod::runFlag = false;
-    //         thLsmod.join();
-    //         break;
-    //     }
-    // }
-
     int c;
     Curses curses {};
 
@@ -43,7 +17,7 @@ int main()
         curses.endWin();
     }
 
-    keypad(stdscr, TRUE);
+	keypad(stdscr, TRUE);
 
     //////////////////////////////////////////
 
@@ -70,13 +44,13 @@ int main()
     listMenuBottom.push_back("gtarffim");
 
     //////////////////////////////////////////
-
+    
     Menu menuTop {};
     menuTop.create(listMenuTop);
 
     Menu menuBottom {};
     menuBottom.create(listMenuBottom);
-
+    
     //////////////////////////////////////////
 
     Window menuWindowTop {0,0};
@@ -89,6 +63,8 @@ int main()
 
     //////////////////////////////////////////
 
+    // Timer timer(1000, false, &Lsmod::);
+
     //////////////////////////////////////////
 
     curses.refreshWin();
@@ -99,10 +75,10 @@ int main()
 
     bool enabledWindow = true; // true = top, false = bottom
 
-    while((c = getch()) != KEY_F(1))
-    {
+	while((c = getch()) != KEY_F(1))
+	{
         switch(c)
-        {
+	    {
         case '\t':
             enabledWindow = !enabledWindow;
             // if(enabledWindow)
@@ -115,7 +91,7 @@ int main()
             //     wbkgd(menuWindowBottom.getWindow(),COLOR_PAIR(2));
             //     wbkgd(menuWindowTop.getWindow(),COLOR_PAIR(1));
             // }
-
+            
             break;
 
         case KEY_DOWN:
@@ -123,18 +99,18 @@ int main()
                 menuTop.driveMenu(REQ_DOWN_ITEM);
             else
                 menuBottom.driveMenu(REQ_DOWN_ITEM);
-    		break;
-
-    	case KEY_UP:
+			break;
+            
+		case KEY_UP:
             if(enabledWindow)
                 menuTop.driveMenu(REQ_UP_ITEM);
             else
                 menuBottom.driveMenu(REQ_UP_ITEM);
-    		break;
-    	}
+			break;
+		}
         menuWindowTop.refresh();
         menuWindowBottom.refresh();
-    }
+	}
 
     menuTop.unpost();
     menuBottom.unpost();
