@@ -60,6 +60,7 @@ class Menu
 private:
     std::vector<ITEM *> itemList;
     std::unique_ptr<MENU *> menu_ptr;
+    
 public:
     Menu() = default;
 
@@ -104,15 +105,17 @@ public:
         {
             free_item(items[i]);
         }
-        free_menu(getMenu());
+        // free_menu(getMenu());
     }
 
     void updateMenu(std::vector<std::string> &list)
-    {
-        std::vector<ITEM *> iList;
-        for(int i = 0; i < list.size(); ++i)
-            iList.push_back(new_item(list.at(i).c_str(), ""));
-
-        int ret = set_menu_items(*menu_ptr.get(),(ITEM **) &iList[0]);
+    {   
+        itemList.clear();
+        for (int i = 0; i < list.size(); ++i)
+            itemList.push_back(new_item(list.at(i).c_str(), ""));
+            
+        int ret = set_menu_items(getMenu(), itemList.data());
+        int itemCount = item_count(static_cast<const MENU*>(getMenu()));
+        
     }
 };

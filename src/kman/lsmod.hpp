@@ -13,7 +13,7 @@ public:
     
     static void callback()
     {
-        
+        Command::exec("lsmod | head -n5");
     }
 
 private:

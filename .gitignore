@@ -1,6 +1,3 @@
 .vscode/
 src/*.o
-<<<<<<< HEAD
-*.o
-=======
->>>>>>> b093aaa07d1aea7307e83623ba05149cde04687e
+build/*

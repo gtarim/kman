@@ -1,11 +1,36 @@
 #include "menu.hpp"
 #include "curses.hpp"
 #include "common.hpp"
+#include "lsmod.hpp"
+
+Curses curses {};
+Window menuWindowTop {0,0};
+Window menuWindowBottom {0,(LINES/2)};
+Menu menuTop {};
+Menu menuBottom {};
+
+static int callback()
+{
+    std::vector<std::string> list = split(Command::exec("ps | head -n5"),'\n');
+    
+    // for(std::string str : list)
+    //     std::cout << str << std::endl;
+    
+
+    menuTop.unpost();
+    menuTop.freeMenuItems();
+    menuTop.updateMenu(list);
+    menuTop.post();
+    menuWindowTop.refresh();
+    curses.refreshWin();
+    
+    Timer timer(3000, false, &callback);
+
+}
 
 int main()
 {
     int c;
-    Curses curses {};
 
     // checking window size
     if(!curses.checkWindowSize())
@@ -25,12 +50,12 @@ int main()
     std::vector<std::string> listMenuTop;
     listMenuTop.push_back("gokhantarim");
     listMenuTop.push_back("gtarim");
-    listMenuTop.push_back("gkhantarim");
-    listMenuTop.push_back("gtarima");
-    listMenuTop.push_back("asdasddf");
-    listMenuTop.push_back("asfaf");
-    listMenuTop.push_back("gkhantaaarim");
-    listMenuTop.push_back("gtarffim");
+    // listMenuTop.push_back("gkhantarim");
+    // listMenuTop.push_back("gtarima");
+    // listMenuTop.push_back("asdasddf");
+    // listMenuTop.push_back("asfaf");
+    // listMenuTop.push_back("gkhantaaarim");
+    // listMenuTop.push_back("gtarffim");
 
     // creting lsmod menu
     std::vector<std::string> listMenuBottom;
@@ -45,25 +70,16 @@ int main()
 
     //////////////////////////////////////////
     
-    Menu menuTop {};
     menuTop.create(listMenuTop);
-
-    Menu menuBottom {};
     menuBottom.create(listMenuBottom);
     
     //////////////////////////////////////////
 
-    Window menuWindowTop {0,0};
     menuWindowTop.keypadEnable(true);
     menuWindowTop.create(menuTop.getMenu());
 
-    Window menuWindowBottom {0,(LINES/2)};
     menuWindowBottom.keypadEnable(true);
     menuWindowBottom.create(menuBottom.getMenu());
-
-    //////////////////////////////////////////
-
-    // Timer timer(1000, false, &Lsmod::);
 
     //////////////////////////////////////////
 
@@ -72,6 +88,19 @@ int main()
     menuWindowTop.refresh();
     menuBottom.post();
     menuWindowBottom.refresh();
+
+    //////////////////////////////////////////
+
+    // Timer timer(1000, false, &callback);
+
+    //////////////////////////////////////////
+    std::vector<std::string> list;
+    list.clear();
+    list.push_back("123457890");
+    list.push_back("asd123457890");
+    list.push_back("1asd23457890");
+    list.push_back("gdsg123457890");
+    list.push_back("xvb123457890");
 
     bool enabledWindow = true; // true = top, false = bottom
 
@@ -91,6 +120,18 @@ int main()
             //     wbkgd(menuWindowBottom.getWindow(),COLOR_PAIR(2));
             //     wbkgd(menuWindowTop.getWindow(),COLOR_PAIR(1));
             // }
+
+            break;
+
+        case 't':
+            /// TODO: update mechanism will check
+
+            menuTop.unpost();
+            menuTop.freeMenuItems();
+            menuTop.updateMenu(list);
+            menuTop.post();
+            menuWindowTop.refresh();
+            curses.refreshWin();
             
             break;
 
@@ -118,5 +159,6 @@ int main()
     curses.refreshWin();
     curses.clearWin();
     curses.endWin();
+
     return 0;
 }

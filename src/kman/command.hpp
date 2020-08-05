@@ -9,7 +9,7 @@ public:
     Command() = default;
     virtual void run() = 0;
 
-    std::string exec(const char* cmd) {
+    static std::string exec(const char* cmd) {
         std::array<char, 128> buffer;
         std::string result;
         std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
