@@ -13,18 +13,24 @@ static int callback()
 {
     std::vector<std::string> list = split(Command::exec("ps | head -n5"),'\n');
     
-    // for(std::string str : list)
-    //     std::cout << str << std::endl;
-    
-
     menuTop.unpost();
     menuTop.freeMenuItems();
     menuTop.updateMenu(list);
+    box(menuWindowTop.getWindow(), 0, 0);
+    
+    int x, y;
+    getyx(menuWindowTop.getWindow(), y, x); 
+    
     menuTop.post();
+    
+    move(y,x);
+    for (uint8_t index = 0; index < y-1; index++)
+        menuTop.driveMenu(REQ_DOWN_ITEM);
+
     menuWindowTop.refresh();
     curses.refreshWin();
     
-    Timer timer(3000, false, &callback);
+    Timer timer(1000, false, &callback);
 
 }
 
@@ -91,16 +97,9 @@ int main()
 
     //////////////////////////////////////////
 
-    // Timer timer(1000, false, &callback);
+    Timer timer(1000, true, &callback);
 
     //////////////////////////////////////////
-    std::vector<std::string> list;
-    list.clear();
-    list.push_back("123457890");
-    list.push_back("asd123457890");
-    list.push_back("1asd23457890");
-    list.push_back("gdsg123457890");
-    list.push_back("xvb123457890");
 
     bool enabledWindow = true; // true = top, false = bottom
 
@@ -124,14 +123,6 @@ int main()
             break;
 
         case 't':
-            /// TODO: update mechanism will check
-
-            menuTop.unpost();
-            menuTop.freeMenuItems();
-            menuTop.updateMenu(list);
-            menuTop.post();
-            menuWindowTop.refresh();
-            curses.refreshWin();
             
             break;
 
