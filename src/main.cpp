@@ -9,29 +9,62 @@ Window menuWindowBottom {0,(LINES/2)};
 Menu menuTop {};
 Menu menuBottom {};
 
-static int callback()
+int x, y;
+static int lsmodCallback()
 {
-    std::vector<std::string> list = split(Command::exec("ps | head -n5"),'\n');
-    
+
+    // std::vector<std::string> list = split(Command::exec("lsmod | head -n5"),'\n');
+    std::string str = "lsmod | head -n" + std::to_string((LINES/2)-2);
+    std::vector<std::string> list = split(Command::exec(str.c_str()),'\n');
+
     menuTop.unpost();
     menuTop.freeMenuItems();
     menuTop.updateMenu(list);
     box(menuWindowTop.getWindow(), 0, 0);
-    
-    int x, y;
     getyx(menuWindowTop.getWindow(), y, x); 
-    
     menuTop.post();
-    
     move(y,x);
-    for (uint8_t index = 0; index < y-1; index++)
-        menuTop.driveMenu(REQ_DOWN_ITEM);
+    
+    if(y == 1) // checking lsmod head title
+        y++;
 
+    for (uint8_t index = 1; index < y; index++)
+    {
+           menuTop.driveMenu(REQ_DOWN_ITEM);
+    }
+     
     menuWindowTop.refresh();
     curses.refreshWin();
     
-    Timer timer(1000, false, &callback);
+    Timer timerLsmod(100, false, &lsmodCallback);
+}
 
+static int dmesgCallback()
+{
+
+    std::string str = "ps | head -n" + std::to_string((LINES/2)-2);
+    std::vector<std::string> list = split(Command::exec(str.c_str()),'\n');
+
+    menuBottom.unpost();
+    menuBottom.freeMenuItems();
+    menuBottom.updateMenu(list);
+    box(menuWindowBottom.getWindow(), 0, 0);
+    getyx(menuWindowBottom.getWindow(), y, x); 
+    menuBottom.post();
+    move(y,x);
+    
+    if(y == 1) // checking lsmod head title
+        y++;
+
+    for (uint8_t index = 1; index < y; index++)
+    {
+        menuBottom.driveMenu(REQ_DOWN_ITEM);
+    }
+     
+    menuWindowBottom.refresh();
+    curses.refreshWin();
+    
+    Timer timerDmesg(1000, false, &dmesgCallback);
 }
 
 int main()
@@ -48,31 +81,18 @@ int main()
         curses.endWin();
     }
 
-	keypad(stdscr, TRUE);
+	keypad(stdscr, TRUE);   // enable keypad
+    curs_set(0);            // invisible cursor
 
     //////////////////////////////////////////
 
     // creting lsmod menu
     std::vector<std::string> listMenuTop;
-    listMenuTop.push_back("gokhantarim");
-    listMenuTop.push_back("gtarim");
-    // listMenuTop.push_back("gkhantarim");
-    // listMenuTop.push_back("gtarima");
-    // listMenuTop.push_back("asdasddf");
-    // listMenuTop.push_back("asfaf");
-    // listMenuTop.push_back("gkhantaaarim");
-    // listMenuTop.push_back("gtarffim");
+    listMenuTop.push_back("");
 
     // creting lsmod menu
     std::vector<std::string> listMenuBottom;
     listMenuBottom.push_back("gokhantarim");
-    listMenuBottom.push_back("gtarim");
-    listMenuBottom.push_back("gkhantarim");
-    listMenuBottom.push_back("gtarima");
-    listMenuBottom.push_back("asdasddf");
-    listMenuBottom.push_back("asfaf");
-    listMenuBottom.push_back("gkhantaaarim");
-    listMenuBottom.push_back("gtarffim");
 
     //////////////////////////////////////////
     
@@ -97,7 +117,8 @@ int main()
 
     //////////////////////////////////////////
 
-    Timer timer(1000, true, &callback);
+    Timer timerLsmod(0, true, &lsmodCallback);
+    Timer timerDmesg(0, true, &dmesgCallback);
 
     //////////////////////////////////////////
 
@@ -122,10 +143,6 @@ int main()
 
             break;
 
-        case 't':
-            
-            break;
-
         case KEY_DOWN:
             if(enabledWindow)
                 menuTop.driveMenu(REQ_DOWN_ITEM);
@@ -135,7 +152,12 @@ int main()
             
 		case KEY_UP:
             if(enabledWindow)
+            {
+                // lsmod check window head
+                if(y==2)
+                    break;
                 menuTop.driveMenu(REQ_UP_ITEM);
+            }
             else
                 menuBottom.driveMenu(REQ_UP_ITEM);
 			break;
