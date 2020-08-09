@@ -30,7 +30,7 @@ public:
     void create(MENU * menu_ptr)
     {
         set_menu_win(menu_ptr, *window_ptr.get());
-        set_menu_sub(menu_ptr, derwin(*window_ptr.get(), LINES/2-2, COLS-1, 1, 1));
+        set_menu_sub(menu_ptr, derwin(*window_ptr.get(), LINES/2-2, COLS-2, 1, 1));
 	    set_menu_format(menu_ptr, LINES/2-2, 1);
         set_menu_mark(menu_ptr, " ");
 

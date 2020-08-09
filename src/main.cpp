@@ -10,61 +10,56 @@ Menu menuTop {};
 Menu menuBottom {};
 
 int x, y;
+
+bool initDmesg {false};
+std::mutex mutexLsmod,mutexDmesg;
+int yLsmod {1}, yDmesg {1};
+
 static int lsmodCallback()
 {
-
-    // std::vector<std::string> list = split(Command::exec("lsmod | head -n5"),'\n');
-    std::string str = "lsmod | head -n" + std::to_string((LINES/2)-2);
-    std::vector<std::string> list = split(Command::exec(str.c_str()),'\n');
-
+    std::vector<std::string> list = split(Command::exec("lsmod"),'\n');
     menuTop.unpost();
     menuTop.freeMenuItems();
     menuTop.updateMenu(list);
+    set_menu_sub(menuTop.getMenu(), 
+                derwin(menuWindowTop.getWindow(), LINES/2-2, COLS-2, 1, 1));
     box(menuWindowTop.getWindow(), 0, 0);
-    getyx(menuWindowTop.getWindow(), y, x); 
     menuTop.post();
-    move(y,x);
-    
-    if(y == 1) // checking lsmod head title
-        y++;
-
-    for (uint8_t index = 1; index < y; index++)
+    mutexLsmod.lock();
+    for (uint8_t index = 1; index < yLsmod; index++)
     {
-           menuTop.driveMenu(REQ_DOWN_ITEM);
+        menuTop.driveMenu(REQ_DOWN_ITEM);
     }
-     
+    mutexLsmod.unlock();
     menuWindowTop.refresh();
     curses.refreshWin();
     
-    Timer timerLsmod(100, false, &lsmodCallback);
+    Timer timerLsmod(1000, false, &lsmodCallback);
 }
 
 static int dmesgCallback()
 {
-
-    std::string str = "ps | head -n" + std::to_string((LINES/2)-2);
-    std::vector<std::string> list = split(Command::exec(str.c_str()),'\n');
-
+    std::vector<std::string> listD = split(Command::exec("dmesg"),'\n');
+    std::reverse(listD.begin(),listD.end());
     menuBottom.unpost();
     menuBottom.freeMenuItems();
-    menuBottom.updateMenu(list);
+    menuBottom.updateMenu(listD);
+    set_menu_sub(menuBottom.getMenu(), 
+                derwin(menuWindowBottom.getWindow(), LINES/2-2, COLS-2, 1, 1));
     box(menuWindowBottom.getWindow(), 0, 0);
-    getyx(menuWindowBottom.getWindow(), y, x); 
     menuBottom.post();
-    move(y,x);
-    
-    if(y == 1) // checking lsmod head title
-        y++;
+    mutexDmesg.lock();
+    // for (uint8_t index = 1; index < yDmesg; index++)
 
-    for (uint8_t index = 1; index < y; index++)
+    for (uint8_t index = 1; index < yDmesg; index++)
     {
         menuBottom.driveMenu(REQ_DOWN_ITEM);
     }
-     
+    mutexDmesg.unlock();
     menuWindowBottom.refresh();
     curses.refreshWin();
     
-    Timer timerDmesg(1000, false, &dmesgCallback);
+    Timer timerDmesg(1500, false, &dmesgCallback);
 }
 
 int main()
@@ -83,6 +78,7 @@ int main()
 
 	keypad(stdscr, TRUE);   // enable keypad
     curs_set(0);            // invisible cursor
+    scrollok(stdscr, TRUE); // scroll ok
 
     //////////////////////////////////////////
 
@@ -145,22 +141,36 @@ int main()
 
         case KEY_DOWN:
             if(enabledWindow)
+            {
+                mutexLsmod.lock();
+                yLsmod++;
+                mutexLsmod.unlock();
                 menuTop.driveMenu(REQ_DOWN_ITEM);
-            else
+            }else
+            {
+                mutexDmesg.lock();
+                yDmesg++;
+                mutexDmesg.unlock();
                 menuBottom.driveMenu(REQ_DOWN_ITEM);
+            }
 			break;
             
 		case KEY_UP:
             if(enabledWindow)
             {
-                // lsmod check window head
-                if(y==2)
-                    break;
+                mutexLsmod.lock();
+                yLsmod--;
+                mutexLsmod.unlock();
                 menuTop.driveMenu(REQ_UP_ITEM);
             }
             else
+            {
+                mutexDmesg.lock();
+                yDmesg--;
+                mutexDmesg.unlock();
                 menuBottom.driveMenu(REQ_UP_ITEM);
-			break;
+            }
+            break;
 		}
         menuWindowTop.refresh();
         menuWindowBottom.refresh();
