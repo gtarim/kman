@@ -17,7 +17,7 @@ int yLsmod {1}, yDmesg {1};
 
 static int lsmodCallback()
 {
-    std::vector<std::string> list = split(Command::exec("lsmod"),'\n');
+    std::vector<std::string> list = split(Command::exec("lsmod | head -100"),'\n');
     menuTop.unpost();
     menuTop.freeMenuItems();
     menuTop.updateMenu(list);
@@ -34,7 +34,7 @@ static int lsmodCallback()
     menuWindowTop.refresh();
     curses.refreshWin();
     
-    Timer timerLsmod(1000, false, &lsmodCallback);
+    Timer timerLsmod(2000, false, &lsmodCallback);
 }
 
 static int dmesgCallback()
@@ -49,8 +49,6 @@ static int dmesgCallback()
     box(menuWindowBottom.getWindow(), 0, 0);
     menuBottom.post();
     mutexDmesg.lock();
-    // for (uint8_t index = 1; index < yDmesg; index++)
-
     for (uint8_t index = 1; index < yDmesg; index++)
     {
         menuBottom.driveMenu(REQ_DOWN_ITEM);
@@ -84,7 +82,7 @@ int main()
 
     // creting lsmod menu
     std::vector<std::string> listMenuTop;
-    listMenuTop.push_back("");
+    listMenuTop.push_back("gokhantarim");
 
     // creting lsmod menu
     std::vector<std::string> listMenuBottom;
